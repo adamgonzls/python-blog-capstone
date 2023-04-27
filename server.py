@@ -17,6 +17,9 @@ for blog in res:
 def home():
     return render_template("index.html", blog_objects=blog_objects)
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 @app.route("/post/<int:id>")
 def get_post(id):
