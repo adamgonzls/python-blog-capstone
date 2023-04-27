@@ -21,6 +21,10 @@ def home():
 def about():
     return render_template("about.html")
 
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
 @app.route("/post/<int:id>")
 def get_post(id):
     for blog in blog_objects:
