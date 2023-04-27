@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 from blog import Blog
 
@@ -17,13 +17,33 @@ for blog in res:
 def home():
     return render_template("index.html", blog_objects=blog_objects)
 
+
 @app.route("/about")
 def about():
     return render_template("about.html")
 
-@app.route("/contact")
+
+@app.route("/contact", methods=["POST", "GET"])
 def contact():
-    return render_template("contact.html")
+    if request.method == "POST":
+        name = request.form['name']
+        phone = request.form['phone']
+        email = request.form['email']
+        message = request.form['message']
+        print(name, phone, email, message)
+        return render_template("contact.html", message_sent=True)
+    return render_template("contact.html", message_sent=False)
+
+
+# @app.route("/form-entry", methods=["POST"])
+# def receive_data():
+#     name = request.form['name']
+#     phone = request.form['phone']
+#     email = request.form['email']
+#     message = request.form['message']
+#     print(name, phone, email, message)
+#     return render_template("contact.html", confirmation="Successfully sent message")
+
 
 @app.route("/post/<int:id>")
 def get_post(id):
