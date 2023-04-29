@@ -11,14 +11,14 @@
 
     <!-- ** Plugins Needed for the Project ** -->
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/static/plugins/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/plugins/fontawesome/css/all.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/plugins/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/plugins/fontawesome/css/all.css') }}">
 
     <!-- Main Stylesheet -->
-    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='/css/style.css') }}" rel="stylesheet">
 
     <!--Favicon-->
-    <link rel="shortcut icon" href="/static/images/favicon.png" type="image/x-icon">
-    <link rel="icon" href="/static/images/favicon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='/images/favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='/images/favicon.png') }}" type="image/x-icon">
 
 </head>
