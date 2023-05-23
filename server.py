@@ -17,12 +17,12 @@ SEND_TO_EMAIL = "adamgonzales1@gmail.com"
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 MAIL_SUBMISSION_PORT = 587
 
-res = requests.get(url=BLOG_API).json()
-print(res)
-blog_objects = []
-for blog in res:
-    blog_object = Blog(blog['id'], blog['image'], blog['imageAltText'], blog['title'], blog['subtitle'], blog['body'])
-    blog_objects.append(blog_object)
+# res = requests.get(url=BLOG_API).json()
+# print(res)
+# blog_objects = []
+# for blog in res:
+#     blog_object = Blog(blog['id'], blog['image'], blog['imageAltText'], blog['title'], blog['subtitle'], blog['body'])
+#     blog_objects.append(blog_object)
 
 
 class BlogPost(db.Model):
@@ -49,9 +49,11 @@ with app.app_context():
     # db.session.add(new_post)
     # db.session.commit()
 
+
 @app.route("/")
 def home():
-    return render_template("index.html", blog_objects=blog_objects)
+    blog_posts = db.session.execute(db.select(BlogPost)).scalars()
+    return render_template("index.html", blog_posts=blog_posts)
 
 
 @app.route("/about")
@@ -73,9 +75,8 @@ def contact():
 
 @app.route("/post/<int:id>")
 def get_post(id):
-    for blog in blog_objects:
-        if blog.id == id:
-            return render_template("post-details.html", blog_object=blog)
+    blog_post = db.get_or_404(BlogPost, id)
+    return render_template("post-details.html", blog_post=blog_post)
 
 
 def send_email(requestor_name, requestor_phone, requestor_email, requestor_message):

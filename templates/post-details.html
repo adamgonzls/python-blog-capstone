@@ -33,10 +33,10 @@
                 
                 <div class="row justify-content-between">
                     <div class="col-lg-10">
-                        <img class="img-fluid" src="/static/images/post/{{blog_object.image}}"
-                             alt="{{blog_object.imageAltText}}">
+                        <img class="img-fluid" src="/static/images/post/{{blog_post.image}}"
+                             alt="{{blog_post.imageAltText}}">
                         <h1 class="text-white add-letter-space mt-4">{{
-                            blog_object.title }}</h1>
+                            blog_post.title }}</h1>
                         <ul class="post-meta mt-3 mb-4">
                             <li class="d-inline-block mr-3">
                                 <span class="fas fa-clock text-primary"></span>
@@ -48,10 +48,10 @@
                             </li>
                         </ul>
 
-                        <p>{{ blog_object.body }}</p>
+                        <p>{{ blog_post.body }}</p>
 
                         <div class="blockquote bg-dark my-5">
-                            <p class="blockquote-text pl-2">{{ blog_object
+                            <p class="blockquote-text pl-2">{{ blog_post
                                 .subtitle }}</p>
                             <span class="blockquote-footer text-white h4 mt-3">James Hopkins</span>
                         </div>
