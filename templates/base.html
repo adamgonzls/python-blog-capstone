@@ -1,0 +1,17 @@
+{% from 'bootstrap5/form.html' import render_form %}
+<!DOCTYPE html>
+<html>
+{% include "_head.html" %}
+<body>
+    <!-- START preloader-wrapper -->
+    <div class="preloader-wrapper">
+        <div class="preloader-inner">
+            <div class="spinner-border text-red"></div>
+        </div>
+    </div>
+    <!-- END preloader-wrapper -->
+    <!--    main content-->
+    {% block content %}{% endblock %}
+    {% include "_footer.html" %}
+</body>
+</html>

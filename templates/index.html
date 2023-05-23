@@ -1,20 +1,7 @@
-<!DOCTYPE html>
-<html>
-{% include "_head.html" %}
-<body>
-    <!-- START preloader-wrapper -->
-    <div class="preloader-wrapper">
-        <div class="preloader-inner">
-            <div class="spinner-border text-red"></div>
-        </div>
-    </div>
-    <!-- END preloader-wrapper -->
-
-    <!-- START main-wrapper -->
+{% extends 'base.html' %}
+{% block content %}
     <section class="d-flex">
-
         {% include "_navigation.html" %}
-
         <div class="container pt-4 mt-5">
             <div class="row justify-content-between">
                 <div class="col-lg-7">
@@ -143,4 +130,5 @@
                 </div>
             </div>
         </div>
-        {% include "_footer.html" %}
+    </section>
+{% endblock %}

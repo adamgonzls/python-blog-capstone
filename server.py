@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_bootstrap import Bootstrap5
+from newBlogPostForm import NewBlogPostForm
 import requests
 from blog import Blog
 import smtplib
@@ -7,6 +9,8 @@ import os
 
 db = SQLAlchemy()
 app = Flask(__name__)
+app.secret_key = "iwearmysunglassesatnight"
+bootstrap = Bootstrap5(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///explore_the_borderland.db"
 db.init_app(app)
 
@@ -50,11 +54,37 @@ with app.app_context():
     # db.session.commit()
 
 
+# home page / read all posts
 @app.route("/")
 def home():
     blog_posts = db.session.execute(db.select(BlogPost)).scalars()
     return render_template("index.html", blog_posts=blog_posts)
 
+
+# read individual post
+@app.route("/post/<int:id>")
+def get_post(id):
+    blog_post = db.get_or_404(BlogPost, id)
+    return render_template("post-details.html", blog_post=blog_post)
+
+
+# create post
+@app.route("/new-post", methods=['GET', 'POST'])
+def add_blog_post():
+    new_blog_post_form = NewBlogPostForm()
+    if new_blog_post_form.validate_on_submit():
+        blogpost = BlogPost(
+            title=new_blog_post_form.title.data,
+            subtitle=new_blog_post_form.subtitle.data,
+            image=new_blog_post_form.image.data,
+            image_alt_text=new_blog_post_form.image_alt_text.data,
+            body=new_blog_post_form.body.data,
+            publish_date=new_blog_post_form.publish_date.data,
+        )
+        db.session.add(blogpost)
+        db.session.commit()
+        return redirect(url_for("get_post", id=blogpost.id))
+    return render_template("newBlogPost.html", form=new_blog_post_form)
 
 @app.route("/about")
 def about():
@@ -73,10 +103,9 @@ def contact():
     return render_template("contact.html", message_sent=False)
 
 
-@app.route("/post/<int:id>")
-def get_post(id):
-    blog_post = db.get_or_404(BlogPost, id)
-    return render_template("post-details.html", blog_post=blog_post)
+@app.route("/styleguide")
+def get_styleguide():
+    return render_template("styleguide.html")
 
 
 def send_email(requestor_name, requestor_phone, requestor_email, requestor_message):
