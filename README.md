@@ -1,4 +1,4 @@
-# West Texas Wonders
+# Explore the Borderland
 
 A blog created about the wonders of West Texas.
 

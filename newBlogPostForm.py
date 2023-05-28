@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from flask_ckeditor import CKEditorField
+from wtforms import StringField, SubmitField, DateField
 
 
 class NewBlogPostForm(FlaskForm):
@@ -7,6 +8,5 @@ class NewBlogPostForm(FlaskForm):
     subtitle = StringField(label="Blog post subtitle:")
     image = StringField(label="Image file name:")
     image_alt_text = StringField(label="Image alt text:")
-    body = StringField(label="Body:")
-    publish_date = StringField(label="Publish date:")
+    body = CKEditorField('Body:')
     submit = SubmitField(label="Add Blog Post")

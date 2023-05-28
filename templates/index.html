@@ -8,12 +8,12 @@
                     <!-- begin of post-item -->
                     {% for blog_post in blog_posts %}
                     <div class="card post-item bg-transparent border-0 mb-5">
-                        <a href="{{ url_for('get_post', id=blog_post['id']) }}">
+                        <a href="{{ url_for('get_post', post_id=blog_post['id']) }}">
                             <img class="card-img-top rounded-0" src="/static/images/post/{{blog_post.image}}" alt="{{blog_post.image_alt_text}}">
                         </a>
                         <div class="card-body px-0">
                             <h2 class="card-title">
-                                <a class="text-white opacity-75-onHover" href="{{ url_for('get_post', id=blog_post['id']) }}">{{ blog_post.title }}</a>
+                                <a class="text-white opacity-75-onHover" href="{{ url_for('get_post', post_id=blog_post['id']) }}">{{ blog_post.title }}</a>
                             </h2>
                             <ul class="post-meta mt-3">
                                 <li class="d-inline-block mr-3">
@@ -25,10 +25,9 @@
                                     <a class="ml-1" href="#">Photography</a>
                                 </li>
                             </ul>
-                            <p class="card-text my-4">{{ blog_post.body }}</p>
-                            <a
-                                    href="{{ url_for('get_post', id=blog_post['id']) }}"
-                               class="btn btn-primary">Read More <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
+                            <p class="card-text my-4">{{ blog_post.body|safe }}</p>
+                            <a href="{{ url_for('get_post', post_id=blog_post['id']) }}" class="btn btn-primary">Read More <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
+                            <a href="{{ url_for('delete_post', post_id=blog_post['id']) }}" class="btn btn-primary">Delete ✘</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -36,8 +35,7 @@
                 </div>
                 <div class="col-lg-4 col-md-5">
                     <div class="widget text-center">
-                        <img
-                                class="author-thumb-sm rounded-circle d-block mx-auto" src="/static/images/adam-bio.jpg" alt="">
+                        <img class="author-thumb-sm rounded-circle d-block mx-auto" src="/static/images/adam-bio.jpg" alt="">
                         <h2 class="widget-title text-white d-inline-block mt-4">About Me</h2>
                         <p class="mt-4">Lorem ipsum dolor sit coectetur adiing elit. Tincidunfywjt leo mi, viearra urna. Arcu ve isus, condimentum ut vulpate cursus por turpis.</p>
                         <ul class="list-inline mt-3">

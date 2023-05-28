@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap5
+from flask_ckeditor import CKEditor
 from newBlogPostForm import NewBlogPostForm
+from datetime import datetime
 import requests
 from blog import Blog
 import smtplib
@@ -9,6 +11,7 @@ import os
 
 db = SQLAlchemy()
 app = Flask(__name__)
+ckeditor = CKEditor(app)
 app.secret_key = "iwearmysunglassesatnight"
 bootstrap = Bootstrap5(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///explore_the_borderland.db"
@@ -36,7 +39,6 @@ class BlogPost(db.Model):
     image = db.Column(db.String(250))
     image_alt_text = db.Column(db.String(250))
     body = db.Column(db.String)
-    publish_date = db.Column(db.String(250))
 
 
 # new_post = BlogPost(
@@ -62,10 +64,10 @@ def home():
 
 
 # read individual post
-@app.route("/post/<int:id>")
-def get_post(id):
-    blog_post = db.get_or_404(BlogPost, id)
-    return render_template("post-details.html", blog_post=blog_post)
+@app.route("/post/<int:post_id>")
+def get_post(post_id):
+    blog_post = db.get_or_404(BlogPost, post_id)
+    return render_template("post_details.html", blog_post=blog_post)
 
 
 # create post
@@ -79,12 +81,44 @@ def add_blog_post():
             image=new_blog_post_form.image.data,
             image_alt_text=new_blog_post_form.image_alt_text.data,
             body=new_blog_post_form.body.data,
-            publish_date=new_blog_post_form.publish_date.data,
         )
         db.session.add(blogpost)
         db.session.commit()
-        return redirect(url_for("get_post", id=blogpost.id))
-    return render_template("newBlogPost.html", form=new_blog_post_form)
+        return redirect(url_for("get_post", post_id=blogpost.id))
+    return render_template("new_post.html", form=new_blog_post_form)
+
+
+# update post
+@app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
+def edit_post(post_id):
+    blog_post = db.get_or_404(BlogPost, post_id)
+    edit_form = NewBlogPostForm(
+        title=blog_post.title,
+        subtitle=blog_post.subtitle,
+        image=blog_post.image,
+        image_alt_text=blog_post.image_alt_text,
+        body=blog_post.body,
+    )
+    if edit_form.validate_on_submit():
+        blog_post_to_update = db.session.get(BlogPost, post_id)
+        blog_post_to_update.title = edit_form.title.data
+        blog_post_to_update.subtitle = edit_form.subtitle.data
+        blog_post_to_update.image = edit_form.image.data
+        blog_post_to_update.image_alt_text = edit_form.subtitle.data
+        blog_post_to_update.body = edit_form.body.data
+        db.session.commit()
+        return redirect(url_for("get_post", post_id=post_id))
+    return render_template("new_post.html", form=edit_form, is_edit=True)
+
+
+# delete post
+@app.route("/delete/<int:post_id>")
+def delete_post(post_id):
+    blog_post_to_delete = db.get_or_404(BlogPost, post_id)
+    db.session.delete(blog_post_to_delete)
+    db.session.commit()
+    return redirect(url_for("home"))
+
 
 @app.route("/about")
 def about():

@@ -35,13 +35,14 @@
                         </li>
                     </ul>
 
-                    <p>{{ blog_post.body }}</p>
+                    <div>{{ blog_post.body|safe }}</div>
 
                     <div class="blockquote bg-dark my-5">
                         <p class="blockquote-text pl-2">{{ blog_post
                             .subtitle }}</p>
                         <span class="blockquote-footer text-white h4 mt-3">James Hopkins</span>
                     </div>
+                    <a href="{{ url_for('edit_post', post_id=blog_post['id']) }}" class="btn btn-primary">Edit Post <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
                 </div>
             </div>
         </div>

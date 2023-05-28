@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section class="d-flex">
+        {% include "_navigation.html" %}
+        <div class="row">
+            <div class="col-md-9">
+                {% if is_edit: %}
+                    <h1 class="text-white add-letter-space my-4">Edit Post</h1>
+                    {{ render_form(form, novalidate=True) }}
+                {% else: %}
+                    <h1 class="text-white add-letter-space my-4">New Post</h1>
+                    {{ render_form(form, novalidate=True) }}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{{ ckeditor.load(pkg_type="basic") }}
+{{ ckeditor.config(name='body') }}
+{% endblock %}
