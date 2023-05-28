@@ -39,6 +39,7 @@ class BlogPost(db.Model):
     image = db.Column(db.String(250))
     image_alt_text = db.Column(db.String(250))
     body = db.Column(db.String)
+    publish_date = db.Column(db.String(250))
 
 
 # new_post = BlogPost(
@@ -75,12 +76,15 @@ def get_post(post_id):
 def add_blog_post():
     new_blog_post_form = NewBlogPostForm()
     if new_blog_post_form.validate_on_submit():
+        current_date = datetime.today()
+        publish_date = current_date.strftime("%Y-%m-%d")
         blogpost = BlogPost(
             title=new_blog_post_form.title.data,
             subtitle=new_blog_post_form.subtitle.data,
             image=new_blog_post_form.image.data,
             image_alt_text=new_blog_post_form.image_alt_text.data,
             body=new_blog_post_form.body.data,
+            publish_date=publish_date
         )
         db.session.add(blogpost)
         db.session.commit()
@@ -92,6 +96,8 @@ def add_blog_post():
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
 def edit_post(post_id):
     blog_post = db.get_or_404(BlogPost, post_id)
+    current_date = datetime.today()
+    publish_date = current_date.strftime("%Y-%m-%d")
     edit_form = NewBlogPostForm(
         title=blog_post.title,
         subtitle=blog_post.subtitle,
@@ -99,6 +105,7 @@ def edit_post(post_id):
         image_alt_text=blog_post.image_alt_text,
         body=blog_post.body,
     )
+    edit_form.submit.label.text = "Update Blog Post"
     if edit_form.validate_on_submit():
         blog_post_to_update = db.session.get(BlogPost, post_id)
         blog_post_to_update.title = edit_form.title.data
@@ -106,6 +113,7 @@ def edit_post(post_id):
         blog_post_to_update.image = edit_form.image.data
         blog_post_to_update.image_alt_text = edit_form.subtitle.data
         blog_post_to_update.body = edit_form.body.data
+        blog_post_to_update.publish_date = publish_date
         db.session.commit()
         return redirect(url_for("get_post", post_id=post_id))
     return render_template("new_post.html", form=edit_form, is_edit=True)
