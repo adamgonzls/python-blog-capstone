@@ -737,3 +737,7 @@ footer ul li:last-child a {
   margin-bottom: 0;
 }
 /*# sourceMappingURL=style.css.map */
+
+.flashes {
+    list-style: none;
+}

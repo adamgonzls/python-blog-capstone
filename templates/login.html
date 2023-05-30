@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section class="d-flex">
+        {% include "_navigation.html" %}
+        <div class="row">
+            <div class="col-md-9">
+                <h1 class="text-white add-letter-space my-4">Login</h1>
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    <ul class=flashes>
+                    {% for message in messages %}
+                      <li><p>{{ message }}</p></li>
+                    {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% endwith %}
+                {{ render_form(form, novalidate=True) }}
+            </div>
+        </div>
+    </section>
+{% endblock %}

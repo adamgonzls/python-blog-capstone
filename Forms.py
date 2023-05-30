@@ -10,3 +10,16 @@ class NewBlogPostForm(FlaskForm):
     image_alt_text = StringField(label="Image alt text:")
     body = CKEditorField('Body:')
     submit = SubmitField(label="Add Blog Post")
+
+
+class RegisterForm(FlaskForm):
+    full_name = StringField(label="Full Name:")
+    email = StringField(label="Email Address:")
+    password = StringField(label="Password:")
+    submit = SubmitField(label="Register")
+
+
+class LoginForm(FlaskForm):
+    email = StringField(label="Email Address:")
+    password = StringField(label="Password:")
+    submit = SubmitField(label="Login")

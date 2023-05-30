@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
-from newBlogPostForm import NewBlogPostForm
+from Forms import NewBlogPostForm, RegisterForm, LoginForm
 from datetime import datetime
 import requests
 from blog import Blog
@@ -12,6 +14,8 @@ import os
 db = SQLAlchemy()
 app = Flask(__name__)
 ckeditor = CKEditor(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 app.secret_key = "iwearmysunglassesatnight"
 bootstrap = Bootstrap5(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///explore_the_borderland.db"
@@ -42,6 +46,11 @@ class BlogPost(db.Model):
     publish_date = db.Column(db.String(250))
 
 
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    full_name = db.Column(db.String(250), unique=True, nullable=False)
+    email = db.Column(db.String(250))
+    password = db.Column(db.String(250))
 # new_post = BlogPost(
 #     title="From Bluebonnets to Mexican Hats: A Year-Round Guide to El Paso's Beautiful Native Flowers",
 #     subtitle="Explore the Vibrant Colors and Fragrances of El Paso's Native Flowers Throughout the Year",
@@ -51,24 +60,36 @@ class BlogPost(db.Model):
 #     publish_date="2023-05-22"
 # )
 
+# new_user = User(
+#     full_name='Adam Gon',
+#     email="adamgonzales1@gmail.com",
+#     password="Test123"
+# )
+
+
 with app.app_context():
     db.create_all()
-    # db.session.add(new_post)
+    # db.session.add(new_user)
     # db.session.commit()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 # home page / read all posts
 @app.route("/")
 def home():
     blog_posts = db.session.execute(db.select(BlogPost)).scalars()
-    return render_template("index.html", blog_posts=blog_posts)
+    return render_template("index.html", blog_posts=blog_posts, logged_in=current_user.is_authenticated, user=current_user)
 
 
 # read individual post
 @app.route("/post/<int:post_id>")
 def get_post(post_id):
     blog_post = db.get_or_404(BlogPost, post_id)
-    return render_template("post_details.html", blog_post=blog_post)
+    return render_template("post_details.html", blog_post=blog_post, logged_in=current_user.is_authenticated, user=current_user)
 
 
 # create post
@@ -89,7 +110,7 @@ def add_blog_post():
         db.session.add(blogpost)
         db.session.commit()
         return redirect(url_for("get_post", post_id=blogpost.id))
-    return render_template("new_post.html", form=new_blog_post_form)
+    return render_template("new_post.html", form=new_blog_post_form, logged_in=current_user.is_authenticated)
 
 
 # update post
@@ -116,7 +137,7 @@ def edit_post(post_id):
         blog_post_to_update.publish_date = publish_date
         db.session.commit()
         return redirect(url_for("get_post", post_id=post_id))
-    return render_template("new_post.html", form=edit_form, is_edit=True)
+    return render_template("new_post.html", form=edit_form, is_edit=True, logged_in=current_user.is_authenticated)
 
 
 # delete post
@@ -128,9 +149,58 @@ def delete_post(post_id):
     return redirect(url_for("home"))
 
 
+# add new user
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    register_form = RegisterForm()
+    if register_form.validate_on_submit():
+        email = register_form.email.data
+        existing_user = User.query.filter_by(email=email).first()
+        if not existing_user:
+            hashed_salted_password = generate_password_hash(register_form.password.data, method="pbkdf2:sha256", salt_length=8)
+            user = User(
+                full_name=register_form.full_name.data,
+                email=email,
+                password=hashed_salted_password
+            )
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            return redirect(url_for("home"))
+        else:
+            flash('That email already exists, try logging on instead')
+            return redirect(url_for('login'))
+    return render_template("register.html", form=register_form, logged_in=current_user.is_authenticated)
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    login_form = LoginForm()
+    if request.method == "POST":
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            if check_password_hash(user.password, password):
+                login_user(user)
+                return redirect(url_for('home'))
+            else:
+                flash('Invalid password, please try again')
+        else:
+            flash('That username doesn\'t exist')
+    return render_template("login.html", form=login_form, logged_in=current_user.is_authenticated)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
 @app.route("/about")
+@login_required
 def about():
-    return render_template("about.html")
+    return render_template("about.html", logged_in=current_user.is_authenticated)
 
 
 @app.route("/contact", methods=["POST", "GET"])
@@ -142,12 +212,12 @@ def contact():
         requestor_message = request.form['message']
         send_email(requestor_name, requestor_phone, requestor_email, requestor_message)
         return render_template("contact.html", message_sent=True)
-    return render_template("contact.html", message_sent=False)
+    return render_template("contact.html", message_sent=False, logged_in=current_user.is_authenticated)
 
 
 @app.route("/styleguide")
 def get_styleguide():
-    return render_template("styleguide.html")
+    return render_template("styleguide.html", logged_in=current_user.is_authenticated)
 
 
 def send_email(requestor_name, requestor_phone, requestor_email, requestor_message):

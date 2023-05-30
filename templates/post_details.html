@@ -41,7 +41,9 @@
                         <p class="blockquote-text pl-2">{{ blog_post
                             .subtitle }}</p>
                     </div>
-                    <a href="{{ url_for('edit_post', post_id=blog_post['id']) }}" class="btn btn-primary">Edit Post <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
+                    {% if user.id == 2 %}
+                        <a href="{{ url_for('edit_post', post_id=blog_post['id']) }}" class="btn btn-primary">Edit Post <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
+                    {% endif %}
                 </div>
             </div>
         </div>
