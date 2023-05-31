@@ -23,3 +23,8 @@ class LoginForm(FlaskForm):
     email = StringField(label="Email Address:")
     password = StringField(label="Password:")
     submit = SubmitField(label="Login")
+
+
+class CommentForm(FlaskForm):
+    comment = CKEditorField("Comment:")
+    submit = SubmitField(label="Submit Comment")

@@ -5,7 +5,7 @@
         <div class="container pt-4 mt-5">
             <div class="row justify-content-between">
                 <div class="col-lg-7">
-                    {% if user.id == 2 %}
+                    {% if user.id == 1 %}
                         <a href="{{ url_for('add_blog_post') }}" class="btn btn-primary">New Post 🆕</a>
                     {% endif %}
                     <!-- begin of post-item -->
@@ -24,9 +24,13 @@
                                     <span class="fas fa-clock text-primary"></span>
                                     <span class="ml-1" href="#">{{ blog_post.publish_date }}</span>
                                 </li>
-                                <li class="d-inline-block">
+                                <li class="d-inline-block mr-3">
                                     <span class="fas fa-list-alt text-primary"></span>
                                     <a class="ml-1" href="#">Photography</a>
+                                </li>
+                                <li class="d-inline-block">
+                                    <span class="fa fa-user text-primary"></span>
+                                    <a class="ml-1" href="#">{{blog_post.author.full_name}}</a>
                                 </li>
                             </ul>
                             <p class="card-text my-4">{{ blog_post.body|safe }}</p>

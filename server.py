@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from functools import wraps
+from flask import abort
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
-from Forms import NewBlogPostForm, RegisterForm, LoginForm
+from forms import NewBlogPostForm, RegisterForm, LoginForm, CommentForm
 from datetime import datetime
 import requests
 from blog import Blog
@@ -36,21 +39,40 @@ MAIL_SUBMISSION_PORT = 587
 #     blog_objects.append(blog_object)
 
 
-class BlogPost(db.Model):
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    posts = relationship("BlogPost", back_populates="author")
+    comments = relationship("Comment", back_populates="comment_author")
+    full_name = db.Column(db.String(250), unique=True, nullable=False)
+    email = db.Column(db.String(250))
+    password = db.Column(db.String(250))
+
+
+class BlogPost(db.Model):
+    __tablename__ = "blog_posts"
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = relationship("User", back_populates="posts")
     title = db.Column(db.String(250), unique=True, nullable=False)
     subtitle = db.Column(db.String(250))
     image = db.Column(db.String(250))
     image_alt_text = db.Column(db.String(250))
     body = db.Column(db.String)
     publish_date = db.Column(db.String(250))
+    comments = relationship("Comment", back_populates="parent_post")
 
 
-class User(UserMixin, db.Model):
+class Comment(UserMixin, db.Model):
+    __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    full_name = db.Column(db.String(250), unique=True, nullable=False)
-    email = db.Column(db.String(250))
-    password = db.Column(db.String(250))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comment_author = relationship("User", back_populates="comments")
+    comment = db.Column(db.String, nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'))
+    parent_post = relationship("BlogPost", back_populates="comments")
+
+
 # new_post = BlogPost(
 #     title="From Bluebonnets to Mexican Hats: A Year-Round Guide to El Paso's Beautiful Native Flowers",
 #     subtitle="Explore the Vibrant Colors and Fragrances of El Paso's Native Flowers Throughout the Year",
@@ -68,9 +90,19 @@ class User(UserMixin, db.Model):
 
 
 with app.app_context():
+    # db.drop_all()
     db.create_all()
     # db.session.add(new_user)
     # db.session.commit()
+
+
+def admin_only(function):
+    @wraps(function)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.id != 1:
+            return abort(403)
+        return function(*args, **kwargs)
+    return decorated_function
 
 
 @login_manager.user_loader
@@ -86,14 +118,31 @@ def home():
 
 
 # read individual post
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
 def get_post(post_id):
+    comment_form = CommentForm()
     blog_post = db.get_or_404(BlogPost, post_id)
-    return render_template("post_details.html", blog_post=blog_post, logged_in=current_user.is_authenticated, user=current_user)
+    post_comments = db.get_or_404(Comment, post_id)
+    print(post_comments)
+    if comment_form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash("You need to login or register to comment.")
+            return redirect(url_for("login"))
+        comment = Comment(
+            comment=comment_form.comment.data,
+            comment_author=current_user,
+            parent_post=blog_post
+        )
+        db.session.add(comment)
+        db.session.commit()
+        return render_template("post_details.html", post=blog_post, form=comment_form, user=current_user)
+    return render_template("post_details.html", blog_post=blog_post, logged_in=current_user.is_authenticated, user=current_user, form=comment_form, comments=post_comments)
 
 
 # create post
-@app.route("/new-post", methods=['GET', 'POST'])
+
+@app.route("/new-post", methods=["GET", "POST"])
+@admin_only
 def add_blog_post():
     new_blog_post_form = NewBlogPostForm()
     if new_blog_post_form.validate_on_submit():
@@ -105,7 +154,8 @@ def add_blog_post():
             image=new_blog_post_form.image.data,
             image_alt_text=new_blog_post_form.image_alt_text.data,
             body=new_blog_post_form.body.data,
-            publish_date=publish_date
+            author=current_user,
+            publish_date=publish_date,
         )
         db.session.add(blogpost)
         db.session.commit()
@@ -115,6 +165,7 @@ def add_blog_post():
 
 # update post
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
+@admin_only
 def edit_post(post_id):
     blog_post = db.get_or_404(BlogPost, post_id)
     current_date = datetime.today()
@@ -142,6 +193,7 @@ def edit_post(post_id):
 
 # delete post
 @app.route("/delete/<int:post_id>")
+@admin_only
 def delete_post(post_id):
     blog_post_to_delete = db.get_or_404(BlogPost, post_id)
     db.session.delete(blog_post_to_delete)
@@ -158,14 +210,14 @@ def register():
         existing_user = User.query.filter_by(email=email).first()
         if not existing_user:
             hashed_salted_password = generate_password_hash(register_form.password.data, method="pbkdf2:sha256", salt_length=8)
-            user = User(
+            new_user = User(
                 full_name=register_form.full_name.data,
                 email=email,
-                password=hashed_salted_password
+                password=hashed_salted_password,
             )
-            db.session.add(user)
+            db.session.add(new_user)
             db.session.commit()
-            login_user(user)
+            login_user(new_user)
             return redirect(url_for("home"))
         else:
             flash('That email already exists, try logging on instead')
@@ -198,7 +250,6 @@ def logout():
 
 
 @app.route("/about")
-@login_required
 def about():
     return render_template("about.html", logged_in=current_user.is_authenticated)
 
