@@ -6,8 +6,9 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from functools import wraps
 from flask import abort
 from flask_bootstrap import Bootstrap5
-from flask_ckeditor import CKEditor
 from forms import NewBlogPostForm, RegisterForm, LoginForm, CommentForm
+from flask_ckeditor import CKEditor
+from flask_gravatar import Gravatar
 from datetime import datetime
 import requests
 from blog import Blog
@@ -23,6 +24,16 @@ app.secret_key = "iwearmysunglassesatnight"
 bootstrap = Bootstrap5(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///explore_the_borderland.db"
 db.init_app(app)
+gravatar = Gravatar(
+    app,
+    size=50,
+    rating='g',
+    default='retro',
+    force_default=False,
+    force_lower=False,
+    use_ssl=False,
+    base_url=None
+)
 
 BLOG_API = "https://api.npoint.io/b58e4135e9c76d950b95"
 SMTP_ADDRESS = "smtp.gmail.com"
@@ -30,6 +41,7 @@ SENDING_EMAIL = "adamgonzalestest@gmail.com"
 SEND_TO_EMAIL = "adamgonzales1@gmail.com"
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 MAIL_SUBMISSION_PORT = 587
+
 
 # res = requests.get(url=BLOG_API).json()
 # print(res)
@@ -135,7 +147,8 @@ def get_post(post_id):
         )
         db.session.add(comment)
         db.session.commit()
-        return render_template("post_details.html", post=blog_post, form=comment_form, user=current_user)
+        comment_form.comment.data = ""
+        # return render_template("post_details.html", blog_post=blog_post, form=comment_form, user=current_user)
     return render_template("post_details.html", blog_post=blog_post, logged_in=current_user.is_authenticated, user=current_user, form=comment_form, comments=post_comments)
 
 

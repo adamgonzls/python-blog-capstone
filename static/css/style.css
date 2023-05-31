@@ -739,5 +739,15 @@ footer ul li:last-child a {
 /*# sourceMappingURL=style.css.map */
 
 .flashes {
-    list-style: none;
+    list-style-type: none;
+}
+
+.comments-list {
+    list-style-type: none;
+}
+
+.comment {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }

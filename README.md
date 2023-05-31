@@ -9,8 +9,10 @@ A blog created about the wonders of West Texas.
 **Technologies Used:**
 
 - Python
+- Flask
 - Jinja
 - REST API
+- SQLite
 - CSS
 - Bootstrap
 
