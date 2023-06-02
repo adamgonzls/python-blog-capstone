@@ -682,40 +682,7 @@ ul, li {
 /*------------------------------------------------------------------
  # contact-form style
 -------------------------------------------------------------------*/
-.contact-form {
-  padding: 60px;
-}
-.contact-form label {
-  font-size: 14px;
-  color: #ffffff;
-  margin-bottom: 15px;
-}
-.contact-form .form-control {
-  background-color: transparent;
-  border: 0;
-  color: #aaa;
-  border-color: #333139 !important;
-  padding-bottom: 20px;
-}
-.contact-form .form-control:focus {
-  border-color: #888888 !important;
-}
-.contact-form select {
-  padding-bottom: 16px;
-  color: #aaa;
-  padding-right: 15px;
-  background-color: transparent;
-  border: 0;
-  border-bottom: 1px solid #333139;
-}
-.contact-form select option {
-  background-color: #1D1C21;
-  color: #ffffff;
-}
-.contact-form textarea {
-  resize: none;
-  height: 100px;
-}
+
 
 /*------------------------------------------------------------------
  # footer style

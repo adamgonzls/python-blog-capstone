@@ -105,8 +105,8 @@ def get_random_blog_post():
 @app.route("/")
 def home():
     blog_posts = db.session.execute(db.select(BlogPost)).scalars()
-    random_blog_post = get_random_blog_post()
-    return render_template("index.html", blog_posts=blog_posts, logged_in=current_user.is_authenticated, user=current_user, random_blog_post=random_blog_post)
+    blog_post = get_random_blog_post()
+    return render_template("index.html", blog_posts=blog_posts, logged_in=current_user.is_authenticated, user=current_user, blog_post=blog_post)
 
 
 # read individual post
@@ -244,7 +244,8 @@ def logout():
 
 @app.route("/about")
 def about():
-    return render_template("about.html", logged_in=current_user.is_authenticated)
+    blog_post = get_random_blog_post()
+    return render_template("about.html", logged_in=current_user.is_authenticated, blog_post=blog_post)
 
 
 @app.route("/contact", methods=["POST", "GET"])
