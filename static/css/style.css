@@ -751,3 +751,13 @@ footer ul li:last-child a {
     gap: 1rem;
     align-items: center;
 }
+
+.blog-body p {
+    margin-bottom: 1rem;
+}
+
+.about-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}

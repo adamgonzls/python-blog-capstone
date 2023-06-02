@@ -9,7 +9,6 @@
                         <a href="{{ url_for('add_blog_post') }}" class="btn btn-primary">New Post 🆕</a>
                     {% endif %}
                     <!-- begin of post-item -->
-                    <p>The id is: {{user.id}}</p>
                     {% for blog_post in blog_posts %}
                     <div class="card post-item bg-transparent border-0 mb-5">
                         <a href="{{ url_for('get_post', post_id=blog_post['id']) }}">
@@ -33,9 +32,9 @@
                                     <a class="ml-1" href="#">{{blog_post.author.full_name}}</a>
                                 </li>
                             </ul>
-                            <p class="card-text my-4">{{ blog_post.body|safe }}</p>
+                            <div class="blog-body my-4">{{ blog_post.body|safe }}</div>
                             <a href="{{ url_for('get_post', post_id=blog_post['id']) }}" class="btn btn-primary">Read More <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
-                            {% if user.id == 2 %}
+                            {% if user.id == 1 %}
                                 <a href="{{ url_for('edit_post', post_id=blog_post['id']) }}" class="btn btn-primary">Edit Post <img src="/static/images/arrow-right.png" alt="Right-pointing arrow"></a>
                                 <a href="{{ url_for('delete_post', post_id=blog_post['id']) }}" class="btn btn-primary">Delete ✘</a>
                             {% endif %}
@@ -46,9 +45,9 @@
                 </div>
                 <div class="col-lg-4 col-md-5">
                     <div class="widget text-center">
-                        <img class="author-thumb-sm rounded-circle d-block mx-auto" src="/static/images/adam-bio.jpg" alt="">
-                        <h2 class="widget-title text-white d-inline-block mt-4">About Me</h2>
-                        <p class="mt-4">Lorem ipsum dolor sit coectetur adiing elit. Tincidunfywjt leo mi, viearra urna. Arcu ve isus, condimentum ut vulpate cursus por turpis.</p>
+                        <img class="rounded-circle about-image" src="/static/images/post/{{random_blog_post.image}}" alt="">
+                        <h2 class="widget-title text-white d-inline-block mt-4">About</h2>
+                        <p class="mt-4">Your gateway to captivating wonders. Discover hidden treasures, vibrant culture, and exhilarating adventures in this extraordinary region. Immerse yourself in breathtaking landscapes, uncover historical landmarks, indulge in flavorful cuisine, and be part of lively festivals.</p>
                         <ul class="list-inline mt-3">
                             <li class="list-inline-item">
                                 <a href="#!" class="text-white text-primary-onHover p-2">

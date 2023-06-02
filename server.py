@@ -10,8 +10,7 @@ from forms import NewBlogPostForm, RegisterForm, LoginForm, CommentForm
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from datetime import datetime
-import requests
-from blog import Blog
+import random
 import smtplib
 import os
 
@@ -20,7 +19,7 @@ app = Flask(__name__)
 ckeditor = CKEditor(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.secret_key = "iwearmysunglassesatnight"
+app.secret_key = os.environ.get("APP_SECRET_KEY")
 bootstrap = Bootstrap5(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///explore_the_borderland.db"
 db.init_app(app)
@@ -36,19 +35,11 @@ gravatar = Gravatar(
 )
 
 BLOG_API = "https://api.npoint.io/b58e4135e9c76d950b95"
-SMTP_ADDRESS = "smtp.gmail.com"
-SENDING_EMAIL = "adamgonzalestest@gmail.com"
-SEND_TO_EMAIL = "adamgonzales1@gmail.com"
+SMTP_ADDRESS = os.environ.get("SMTP_ADDRESS")
+SENDING_EMAIL = os.environ.get("SENDING_EMAIL")
+SEND_TO_EMAIL = os.environ.get("SEND_TO_EMAIL")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
-MAIL_SUBMISSION_PORT = 587
-
-
-# res = requests.get(url=BLOG_API).json()
-# print(res)
-# blog_objects = []
-# for blog in res:
-#     blog_object = Blog(blog['id'], blog['image'], blog['imageAltText'], blog['title'], blog['subtitle'], blog['body'])
-#     blog_objects.append(blog_object)
+MAIL_SUBMISSION_PORT = os.environ.get("MAIL_SUBMISSION_PORT")
 
 
 class User(UserMixin, db.Model):
@@ -85,22 +76,6 @@ class Comment(UserMixin, db.Model):
     parent_post = relationship("BlogPost", back_populates="comments")
 
 
-# new_post = BlogPost(
-#     title="From Bluebonnets to Mexican Hats: A Year-Round Guide to El Paso's Beautiful Native Flowers",
-#     subtitle="Explore the Vibrant Colors and Fragrances of El Paso's Native Flowers Throughout the Year",
-#     image="blooming-cactus-1000.jpg",
-#     image_alt_text="A prickly pear cactus",
-#     body="El Paso, Texas is home to a variety of beautiful native flowers that bloom throughout the year. Here are a few examples: Bluebonnets: These lovely blue flowers bloom from March to May, typically in large patches along roadsides and in fields. Indian paintbrush: This vibrant red flower blooms from April to June and is a favorite of hummingbirds. Desert marigold: Blooming from March to October, these bright yellow flowers are a common sight in the desert landscape. Blackfoot daisy: These white flowers with yellow centers bloom from March to November and are drought-resistant. Mexican hat: This unique flower has a red center surrounded by yellow petals that droop downward, resembling a sombrero. It blooms from May to August. These are just a few examples of the beautiful native flowers that can be found in El Paso, Texas throughout the year. Taking a walk or a drive through the local countryside during the appropriate time of year can be a delightful experience for anyone who loves flowers and nature.",
-#     publish_date="2023-05-22"
-# )
-
-# new_user = User(
-#     full_name='Adam Gon',
-#     email="adamgonzales1@gmail.com",
-#     password="Test123"
-# )
-
-
 with app.app_context():
     # db.drop_all()
     db.create_all()
@@ -122,11 +97,16 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+def get_random_blog_post():
+    return random.choice(BlogPost.query.all())
+
+
 # home page / read all posts
 @app.route("/")
 def home():
     blog_posts = db.session.execute(db.select(BlogPost)).scalars()
-    return render_template("index.html", blog_posts=blog_posts, logged_in=current_user.is_authenticated, user=current_user)
+    random_blog_post = get_random_blog_post()
+    return render_template("index.html", blog_posts=blog_posts, logged_in=current_user.is_authenticated, user=current_user, random_blog_post=random_blog_post)
 
 
 # read individual post
