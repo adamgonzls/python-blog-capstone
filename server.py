@@ -133,7 +133,6 @@ def get_post(post_id):
 
 
 # create post
-
 @app.route("/new-post", methods=["GET", "POST"])
 @admin_only
 def add_blog_post():
