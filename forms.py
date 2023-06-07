@@ -19,6 +19,11 @@ class RegisterForm(FlaskForm):
     submit = SubmitField(label="Register")
 
 
+class UserUpdateForm(FlaskForm):
+    full_name = StringField(label="Full Name:", render_kw={"placeholder":"FirstName LastName"})
+    submit = SubmitField(label="Register")
+
+
 class LoginForm(FlaskForm):
     email = StringField(label="Email Address:", render_kw={"placeholder":"user@domain.com"})
     password = StringField(label="Password:")

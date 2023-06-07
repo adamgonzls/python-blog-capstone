@@ -20,6 +20,9 @@
             {% endif %}
             {% if logged_in: %}
             <li class="nav-item">
+                <a class="nav-link text-white px-0 pt-0" href="{{ url_for('logout') }}">Edit User</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-white px-0 pt-0" href="{{ url_for('logout') }}">Logout</a>
             </li>
             {% endif %}

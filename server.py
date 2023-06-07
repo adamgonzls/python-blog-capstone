@@ -6,7 +6,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from functools import wraps
 from flask import abort
 from flask_bootstrap import Bootstrap5
-from forms import NewBlogPostForm, RegisterForm, LoginForm, CommentForm
+from forms import NewBlogPostForm, RegisterForm, UserUpdateForm, LoginForm, CommentForm
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from datetime import datetime
@@ -215,6 +215,21 @@ def register():
             flash('That email already exists, try logging on instead')
             return redirect(url_for('login'))
     return render_template("register.html", form=register_form, logged_in=current_user.is_authenticated)
+
+
+@app.route("/edit-user", methods=["GET", "POST"])
+@login_required
+def edit_user():
+    user = db.get_or_404(User, current_user.id)
+    user_update_form = UserUpdateForm(
+        full_name=user.full_name,
+    )
+    user_update_form.submit.label.text = "Update User"
+    if user_update_form.validate_on_submit():
+        user.full_name = user_update_form.full_name.data
+        db.session.commit()
+    return render_template("register.html", form=user_update_form,
+                           logged_in=current_user.is_authenticated)
 
 
 @app.route('/login', methods=["GET", "POST"])
