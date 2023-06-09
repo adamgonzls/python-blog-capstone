@@ -101,6 +101,11 @@ def get_random_blog_post():
     return random.choice(BlogPost.query.all())
 
 
+def check_honeypot(form):
+    if form.field1.data:
+        return True
+
+
 # home page / read all posts
 @app.route("/")
 def home():
@@ -138,20 +143,23 @@ def get_post(post_id):
 def add_blog_post():
     new_blog_post_form = NewBlogPostForm()
     if new_blog_post_form.validate_on_submit():
-        current_date = datetime.today()
-        publish_date = current_date.strftime("%Y-%m-%d")
-        blogpost = BlogPost(
-            title=new_blog_post_form.title.data,
-            subtitle=new_blog_post_form.subtitle.data,
-            image=new_blog_post_form.image.data,
-            image_alt_text=new_blog_post_form.image_alt_text.data,
-            body=new_blog_post_form.body.data,
-            author=current_user,
-            publish_date=publish_date,
-        )
-        db.session.add(blogpost)
-        db.session.commit()
-        return redirect(url_for("get_post", post_id=blogpost.id))
+        if not check_honeypot(new_blog_post_form):
+            current_date = datetime.today()
+            publish_date = current_date.strftime("%Y-%m-%d")
+            blogpost = BlogPost(
+                title=new_blog_post_form.title.data,
+                subtitle=new_blog_post_form.subtitle.data,
+                image=new_blog_post_form.image.data,
+                image_alt_text=new_blog_post_form.image_alt_text.data,
+                body=new_blog_post_form.body.data,
+                author=current_user,
+                publish_date=publish_date,
+            )
+            db.session.add(blogpost)
+            db.session.commit()
+            return redirect(url_for("get_post", post_id=blogpost.id))
+        else:
+            return redirect(url_for('home'))
     return render_template("new_post.html", form=new_blog_post_form, logged_in=current_user.is_authenticated)
 
 
@@ -198,22 +206,25 @@ def delete_post(post_id):
 def register():
     register_form = RegisterForm()
     if register_form.validate_on_submit():
-        email = register_form.email.data
-        existing_user = User.query.filter_by(email=email).first()
-        if not existing_user:
-            hashed_salted_password = generate_password_hash(register_form.password.data, method="pbkdf2:sha256", salt_length=8)
-            new_user = User(
-                full_name=register_form.full_name.data,
-                email=email,
-                password=hashed_salted_password,
-            )
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user)
-            return redirect(url_for("home"))
+        if not check_honeypot(register_form):
+            email = register_form.email.data
+            existing_user = User.query.filter_by(email=email).first()
+            if not existing_user:
+                hashed_salted_password = generate_password_hash(register_form.password.data, method="pbkdf2:sha256", salt_length=8)
+                new_user = User(
+                    full_name=register_form.full_name.data,
+                    email=email,
+                    password=hashed_salted_password,
+                )
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user)
+                return redirect(url_for("home"))
+            else:
+                flash('That email already exists, try logging on instead')
+                return redirect(url_for('login'))
         else:
-            flash('That email already exists, try logging on instead')
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
     return render_template("register.html", form=register_form, logged_in=current_user.is_authenticated)
 
 
@@ -236,17 +247,20 @@ def edit_user():
 def login():
     login_form = LoginForm()
     if request.method == "POST":
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
-        if user:
-            if check_password_hash(user.password, password):
-                login_user(user)
-                return redirect(url_for('home'))
+        if not check_honeypot(login_form):
+            email = request.form.get('email')
+            password = request.form.get('password')
+            user = User.query.filter_by(email=email).first()
+            if user:
+                if check_password_hash(user.password, password):
+                    login_user(user)
+                    return redirect(url_for('home'))
+                else:
+                    flash('Invalid password, please try again')
             else:
-                flash('Invalid password, please try again')
+                flash('That username doesn\'t exist')
         else:
-            flash('That username doesn\'t exist')
+            return redirect(url_for('home'))
     return render_template("login.html", form=login_form, logged_in=current_user.is_authenticated)
 
 
@@ -265,12 +279,14 @@ def about():
 @app.route("/contact", methods=["POST", "GET"])
 def contact():
     if request.method == "POST":
-        requestor_name = request.form['name']
-        requestor_phone = request.form['phone']
-        requestor_email = request.form['email']
-        requestor_message = request.form['message']
-        send_email(requestor_name, requestor_phone, requestor_email, requestor_message)
-        return render_template("contact.html", message_sent=True)
+        if not request.form['field1']:
+            requestor_name = request.form['name']
+            requestor_email = request.form['email']
+            requestor_message = request.form['message']
+            send_email(requestor_name, requestor_email, requestor_message)
+            return render_template("contact.html", message_sent=True)
+        else:
+            return redirect(url_for('home'))
     return render_template("contact.html", message_sent=False, logged_in=current_user.is_authenticated)
 
 
@@ -279,8 +295,8 @@ def get_styleguide():
     return render_template("styleguide.html", logged_in=current_user.is_authenticated)
 
 
-def send_email(requestor_name, requestor_phone, requestor_email, requestor_message):
-    email_message = f"subject: Contact form submitted by: {requestor_name}\n\nName: {requestor_name}\nEmail: {requestor_email}\nPhone: {requestor_phone}\nMessage: {requestor_message}\n"
+def send_email(requestor_name, requestor_email, requestor_message, ):
+    email_message = f"subject: Contact form submitted by: {requestor_name}\n\nName: {requestor_name}\nEmail: {requestor_email}\nMessage: {requestor_message}\n"
     with smtplib.SMTP(SMTP_ADDRESS, MAIL_SUBMISSION_PORT) as connection:
         connection.starttls()
         connection.login(user=SENDING_EMAIL, password=GMAIL_APP_PASSWORD)

@@ -728,3 +728,13 @@ footer ul li:last-child a {
     height: 150px;
     object-fit: cover;
 }
+
+div.mb-3:has(.field1-input) {
+    position: absolute;
+    left: -9999px;
+}
+
+.field1-wrapper {
+    position: absolute;
+    left: -9999px;
+}

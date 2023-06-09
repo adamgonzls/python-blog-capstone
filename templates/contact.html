@@ -32,7 +32,7 @@
                               action="{{ url_for('contact') }}"
                               class="needs-validation" novalidate>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="form-group mb-3">
                                         <label for="firstName">Full Name:</label>
                                         <input type="text" id="firstName"
@@ -41,15 +41,12 @@
                                         <p class="invalid-feedback">Your name is required!</p>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="field1-wrapper">
                                     <div class="form-group mb-3">
-                                        <label for="phone">Phone:
-                                        </label>
-                                        <input type="tel" id="phone"
-                                               name="phone"
-                                               class="form-control" placeholder="555-555-1234" required>
-                                        <p class="invalid-feedback">Your
-                                            phone number is required!</p>
+                                        <label for="field1">field1:</label>
+                                        <input type="text" id="field1"
+                                               name="field1"
+                                               class="form-control" placeholder="Do not fill this out" tabindex="-1" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
