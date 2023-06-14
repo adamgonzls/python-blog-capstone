@@ -239,6 +239,7 @@ def edit_user():
     if user_update_form.validate_on_submit():
         user.full_name = user_update_form.full_name.data
         db.session.commit()
+        flash('Your name has been updated')
     return render_template("register.html", form=user_update_form,
                            logged_in=current_user.is_authenticated)
 
@@ -258,7 +259,7 @@ def login():
                 else:
                     flash('Invalid password, please try again')
             else:
-                flash('That username doesn\'t exist')
+                flash('That username doesn\'t exist, please try again!')
         else:
             return redirect(url_for('home'))
     return render_template("login.html", form=login_form, logged_in=current_user.is_authenticated)
