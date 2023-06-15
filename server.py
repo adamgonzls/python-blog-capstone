@@ -21,7 +21,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 app.secret_key = os.environ.get("APP_SECRET_KEY")
 bootstrap = Bootstrap5(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///explore_the_borderland.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 db.init_app(app)
 gravatar = Gravatar(
     app,
