@@ -98,9 +98,8 @@ def load_user(user_id):
 
 
 def get_random_blog_post():
-    random_post = random.choice(BlogPost.query.all())
-    return random_post if random_post else ""
-
+    if BlogPost.query.all():
+        return random.choice(BlogPost.query.all())
 
 
 def check_honeypot(form):
