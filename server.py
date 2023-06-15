@@ -120,7 +120,7 @@ def home():
 def get_post(post_id):
     comment_form = CommentForm()
     found_post = db.get_or_404(BlogPost, post_id)
-    post_comments = db.get_or_404(Comment, post_id)
+    # post_comments = db.get_or_404(Comment, post_id)
     if comment_form.validate_on_submit():
         if not current_user.is_authenticated:
             flash("You need to login or register to comment.")
@@ -133,7 +133,7 @@ def get_post(post_id):
         db.session.add(comment)
         db.session.commit()
         comment_form.comment.data = ""
-    return render_template("post_details.html", blog_post=found_post, logged_in=current_user.is_authenticated, user=current_user, form=comment_form, comments=post_comments)
+    return render_template("post_details.html", blog_post=found_post, logged_in=current_user.is_authenticated, user=current_user, form=comment_form)
     # return f"<p>{post_id}</p>"
 
 # create post
