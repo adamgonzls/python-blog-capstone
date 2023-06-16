@@ -1,8 +1,8 @@
 # Explore the Borderland
 
-A blog created about the wonders of West Texas.
+Discover the captivating wonders of West Texas through a dynamic Python and Flask CRUD app. Explore via blog articles that showcase the landscapes, culture, and hidden treasures of this region.
 
-[//]: # (Check it out: [Adam's Portfolio]&#40;https://adamgonzales.netlify.app/&#41;)
+View it here: [Explore the Borderland](https://explore-the-borderland.onrender.com/)
 
 ## About this Project
 
@@ -12,25 +12,11 @@ A blog created about the wonders of West Texas.
 - Flask
 - Jinja
 - REST API
-- SQLite
+- postgreSQL (production) / SQLite (development)
 - CSS
 - Bootstrap
 
-<!-- Colors and combinations returned via JSON API [Color Picker API](https://www.thecolorapi.com/) -->
+Deployed via [Render](https://render.com/)
 
-[//]: # (Deployed via [netlify]&#40;https://www.netlify.com/&#41;)
-
-[//]: # (## 🚀 Deployment)
-
-[//]: # ()
-[//]: # (| Command             | Action                                       |)
-
-[//]: # (| :------------------ | :------------------------------------------- |)
-
-[//]: # (| `npm run build`     | Build your production site to `./dist/`      |)
-
-[//]: # (| `npm run preview`   | Preview your build locally, before deploying |)
-
-[//]: # (| `ntl deploy`        | Deploy to a unique preview URL               |)
-
-[//]: # (| `ntl deploy --prod` | Deploy the site into production              |)
+## 🚀 Deployment
+Push to main on GitHub repo for automatic deployment

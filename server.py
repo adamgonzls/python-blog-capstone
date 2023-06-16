@@ -102,11 +102,6 @@ def get_random_blog_post():
         return random.choice(BlogPost.query.all())
 
 
-def get_post_comments(post_id):
-    if Comment.query.all():
-        return db.get_or_404(Comment, post_id)
-
-
 def check_honeypot(form):
     if form.field1.data:
         return True
