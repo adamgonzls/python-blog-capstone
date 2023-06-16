@@ -133,7 +133,7 @@ def get_post(post_id):
         comment = Comment(
             comment=comment_form.comment.data,
             comment_author=current_user,
-            parent_post=blog_post
+            parent_post=found_post
         )
         db.session.add(comment)
         db.session.commit()
