@@ -125,7 +125,7 @@ def home():
 def get_post(post_id):
     comment_form = CommentForm()
     found_post = db.get_or_404(BlogPost, post_id)
-    post_comments = get_post_comments(post_id)
+    post_comments = db.session.execute(db.select(Comment).where(Comment.post_id == post_id))
     if comment_form.validate_on_submit():
         if not current_user.is_authenticated:
             flash("You need to login or register to comment.")
